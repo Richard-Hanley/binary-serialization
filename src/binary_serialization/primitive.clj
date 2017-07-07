@@ -96,12 +96,9 @@
 
 (def int64
   (reify codec/Codec
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in (min-signed-number Long) (max-signed-number Long))
-          (s/conformer unchecked-long))
-        value))
+    (conform* [this value] 
+      (try (long value)
+           (catch IllegalArgumentException _ ::s/invalid)))
     (sizeof* [this _] (sizeof-number Long))
     (to-buffer* [this value buffer] (.putLong buffer value))
     (from-buffer* [this buffer] (.getLong buffer ))))
