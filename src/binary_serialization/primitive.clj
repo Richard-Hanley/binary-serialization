@@ -22,6 +22,7 @@
 ; Does not include uint64 since that is not supported without BigInt
 (def uint8 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -34,6 +35,7 @@
 
 (def uint16 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -46,6 +48,7 @@
 
 (def uint32 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -60,6 +63,7 @@
 ; ; Still uses unchecked conversions to stop exceptions from being thrown
 (def int8 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -72,6 +76,7 @@
 
 (def int16 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -84,6 +89,7 @@
 
 (def int32 
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value]
       (s/conform
         (s/and
@@ -96,10 +102,10 @@
 
 (def int64
   (reify codec/Codec
+    (primitive* [_] true)
     (conform* [this value] 
       (try (long value)
            (catch IllegalArgumentException _ ::s/invalid)))
     (sizeof* [this _] (sizeof-number Long))
     (to-buffer* [this value buffer] (.putLong buffer value))
     (from-buffer* [this buffer] (.getLong buffer ))))
-

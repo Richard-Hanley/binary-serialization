@@ -3,6 +3,7 @@
   (:require [clojure.spec.alpha :as s]))
 
 (defprotocol Codec
+  (primitive* [this])
   (conform* [this value])
   (sizeof* [this value])
   (to-buffer* [this value buffer])
@@ -22,6 +23,9 @@
   "Takes a codec and a value.  Returns a new codec that accepts a value
   or nil.  If the value is nil, then the default value is returned"
   [codec value])
+
+(defn primitive? [codec] (primitive* codec))
+(defn composite? [codec] (not (primitive? codec)))
 
 (defn conform
   [codec value] (conform* codec value))
