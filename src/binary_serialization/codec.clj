@@ -4,7 +4,7 @@
 
 (defprotocol Codec
   (primitive* [this])
-  (conform* [this value])
+  (specification* [this])
   (sizeof* [this value])
   (to-buffer* [this value buffer])
   (from-buffer* [this buffer]))
@@ -12,7 +12,7 @@
 (extend-protocol Codec
   nil
   (primitive* [_] true)
-  (conform* [_ _] nil)
+  (specification* [_] (s/conformer (fn [_] nil)))
   (sizeof* [_ _] 0)
   (to-buffer* [_ _ _] nil)
   (from-buffer* [_ _ _] nil))
@@ -20,8 +20,8 @@
 (defn primitive? [codec] (primitive* codec))
 (defn composite? [codec] (not (primitive? codec)))
 
-(defn conform
-  [codec value] (conform* codec value))
+(defn specification
+  [codec] (specification* codec))
 
 (defn sizeof
   [codec value] (sizeof* codec value))
@@ -32,12 +32,20 @@
 (defn from-buffer!
   [codec buffer] (from-buffer* codec buffer))
 
-(defrecord CodecSpec [spec codec])
+(defrecord CodecSpec [additional-spec codec]
+  Codec
+  (primitive* [_] (primitive? codec))
+  (specification* [_] (s/and additional-spec (specification codec)))
+  (sizeof* [_ value] (sizeof codec))
+  (to-buffer* [_ value buffer] (to-buffer! codec value buffer))
+  ; Make sure the result from the inner codec conforms after reading from the buffer
+  (from-buffer* [this buffer] (s/conform (specification this) (from-buffer! codec buffer))))
+
 
 (defn specify 
   "Takes a codec, and a specification, and returns a new codec
   that applies the spec before processing the data"
-  [codec spec])
+  [codec additional-spec] (map->CodecSpec {:codec codec :additional-spec additional-spec}))
 
 (defn constant 
   "Takes a codec, and a specific value, and returns a new

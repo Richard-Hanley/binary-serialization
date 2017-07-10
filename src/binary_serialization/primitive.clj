@@ -23,12 +23,10 @@
 (def uint8 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in 0 (max-unsigned-number Byte))
-          (s/conformer unchecked-byte))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in 0 (max-unsigned-number Byte))
+        (s/conformer unchecked-byte)))
     (sizeof* [this _] (sizeof-number Byte))
     (to-buffer* [this value buffer] (.put buffer value))
     (from-buffer* [this buffer] (.get buffer ))))
@@ -36,12 +34,10 @@
 (def uint16 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in 0 (max-unsigned-number Short))
-          (s/conformer unchecked-short))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in 0 (max-unsigned-number Short))
+        (s/conformer unchecked-short)))
     (sizeof* [this _] (sizeof-number Short))
     (to-buffer* [this value buffer] (.putShort buffer value))
     (from-buffer* [this buffer] (.getShort buffer ))))
@@ -49,12 +45,10 @@
 (def uint32 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in 0 (max-unsigned-number Integer))
-          (s/conformer unchecked-int))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in 0 (max-unsigned-number Integer))
+        (s/conformer unchecked-int)))
     (sizeof* [this _] (sizeof-number Integer))
     (to-buffer* [this value buffer] (.putInt buffer value))
     (from-buffer* [this buffer] (.getInt buffer ))))
@@ -64,12 +58,10 @@
 (def int8 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in (min-signed-number Byte) (max-signed-number Byte))
-          (s/conformer unchecked-byte))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in (min-signed-number Byte) (max-signed-number Byte))
+        (s/conformer unchecked-byte)))
     (sizeof* [this _] (sizeof-number Byte))
     (to-buffer* [this value buffer] (.put buffer value))
     (from-buffer* [this buffer] (.get buffer ))))
@@ -77,12 +69,10 @@
 (def int16 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in (min-signed-number Short) (max-signed-number Short))
-          (s/conformer unchecked-short))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in (min-signed-number Short) (max-signed-number Short))
+        (s/conformer unchecked-short)))
     (sizeof* [this _] (sizeof-number Short))
     (to-buffer* [this value buffer] (.putShort buffer value))
     (from-buffer* [this buffer] (.getShort buffer ))))
@@ -90,12 +80,10 @@
 (def int32 
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value]
-      (s/conform
-        (s/and
-          (s/int-in (min-signed-number Integer) (max-signed-number Integer))
-          (s/conformer unchecked-int))
-        value))
+    (specification* [this]
+      (s/and
+        (s/int-in (min-signed-number Integer) (max-signed-number Integer))
+        (s/conformer unchecked-int)))
     (sizeof* [this _] (sizeof-number Integer))
     (to-buffer* [this value buffer] (.putInt buffer value))
     (from-buffer* [this buffer] (.getInt buffer ))))
@@ -103,9 +91,11 @@
 (def int64
   (reify codec/Codec
     (primitive* [_] true)
-    (conform* [this value] 
-      (try (long value)
-           (catch IllegalArgumentException _ ::s/invalid)))
+    (specification* [this] 
+      (s/conformer
+        (fn [value]
+          (try (long value)
+               (catch IllegalArgumentException _ ::s/invalid)))))
     (sizeof* [this _] (sizeof-number Long))
     (to-buffer* [this value buffer] (.putLong buffer value))
     (from-buffer* [this buffer] (.getLong buffer ))))
