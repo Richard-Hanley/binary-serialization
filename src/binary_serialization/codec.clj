@@ -50,12 +50,16 @@
 (defn constant 
   "Takes a codec, and a specific value, and returns a new
   codec that will only accept nil or the value, and conforms to the value"
-  [codec value])
+  [codec value] (specify codec (s/conformer #(if (or (nil? %) (= value %))
+                                               value
+                                               ::s/invalid))))
 
 (defn default
   "Takes a codec and a value.  Returns a new codec that accepts a value
   or nil.  If the value is nil, then the default value is returned"
-  [codec value])
+  [codec value] (specify codec (s/conformer #(if (nil? %)
+                                               value
+                                               %))))
 
 
 (defrecord AssciatedField [field codec])
